@@ -1,0 +1,8 @@
+<app-dialog-panel>
+  <h2 class="mb-2 text-lg font-semibold">{{ data.title }}</h2>
+  <p class="mb-4 text-sm text-gray-600 dark:text-gray-300">{{ data.body }}</p>
+  <div class="flex justify-end gap-2">
+    <app-button variant="secondary" (click)="cancel()">{{ data.cancelLabel }}</app-button>
+    <app-button variant="danger" (click)="confirm()">{{ data.confirmLabel }}</app-button>
+  </div>
+</app-dialog-panel>
