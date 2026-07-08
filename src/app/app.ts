@@ -2,10 +2,11 @@ import { Component, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { LocaleService, isSupportedLocale } from './core/i18n/locale.service';
+import { ToastContainer } from './shared/ui/toast/toast-container';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ToastContainer],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
