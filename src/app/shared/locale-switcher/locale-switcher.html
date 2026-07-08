@@ -1,0 +1,14 @@
+<!-- src/app/shared/locale-switcher/locale-switcher.html -->
+<div class="flex gap-1" role="group" aria-label="Language">
+  @for (l of locales; track l) {
+    <button
+      type="button"
+      (click)="switchTo(l)"
+      class="rounded px-2 py-1 text-sm uppercase"
+      [class.font-bold]="locale.locale() === l"
+      [attr.aria-current]="locale.locale() === l ? 'true' : null"
+    >
+      {{ l }}
+    </button>
+  }
+</div>

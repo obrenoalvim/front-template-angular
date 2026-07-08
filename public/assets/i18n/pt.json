@@ -1,0 +1,95 @@
+{
+  "nav": {
+    "home": "Início",
+    "login": "Entrar",
+    "register": "Registrar",
+    "dashboard": "Painel",
+    "account": "Conta",
+    "notes": "Notas",
+    "logout": "Sair"
+  },
+  "home": {
+    "title": "front-template-angular",
+    "subtitle": "Um template Angular pronto para clonar.",
+    "description": "Componentes standalone, Signals, SSR e um kit de UI copy-in — pronto para o seu próximo projeto."
+  },
+  "auth": {
+    "login": {
+      "title": "Entrar",
+      "submit": "Entrar",
+      "noAccount": "Precisa de uma conta?",
+      "registerLink": "Registrar"
+    },
+    "register": {
+      "title": "Criar conta",
+      "submit": "Registrar",
+      "haveAccount": "Já tem uma conta?",
+      "loginLink": "Entrar"
+    },
+    "forgotPassword": {
+      "title": "Esqueceu sua senha?",
+      "submit": "Enviar link de redefinição",
+      "success": "Se esse email existir, um link foi enviado."
+    },
+    "resetPassword": { "title": "Redefinir sua senha", "submit": "Redefinir senha" },
+    "fields": {
+      "name": "Nome",
+      "email": "Email",
+      "password": "Senha",
+      "confirmPassword": "Confirmar senha",
+      "currentPassword": "Senha atual",
+      "newPassword": "Nova senha"
+    },
+    "toasts": {
+      "loginSuccess": "Bem-vindo de volta!",
+      "loginError": "Email ou senha inválidos.",
+      "registerSuccess": "Conta criada — bem-vindo!",
+      "registerError": "Não foi possível criar a conta.",
+      "logoutSuccess": "Sessão encerrada."
+    }
+  },
+  "account": {
+    "title": "Conta",
+    "profile": {
+      "title": "Perfil",
+      "submit": "Salvar alterações",
+      "success": "Perfil atualizado."
+    },
+    "password": {
+      "title": "Alterar senha",
+      "submit": "Atualizar senha",
+      "success": "Senha atualizada."
+    },
+    "danger": {
+      "title": "Excluir conta",
+      "description": "Isso não pode ser desfeito.",
+      "submit": "Excluir minha conta",
+      "confirmTitle": "Excluir conta?",
+      "confirmBody": "Isso excluirá permanentemente sua conta. Isso não pode ser desfeito.",
+      "confirmAction": "Excluir",
+      "cancelAction": "Cancelar",
+      "success": "Conta excluída."
+    }
+  },
+  "notes": {
+    "title": "Notas",
+    "empty": "Nenhuma nota ainda.",
+    "create": { "titleLabel": "Título", "contentLabel": "Conteúdo", "submit": "Adicionar nota" },
+    "columns": { "title": "Título", "createdAt": "Criada em", "actions": "Ações" },
+    "delete": "Excluir",
+    "confirmDeleteTitle": "Excluir nota?",
+    "confirmDeleteBody": "Esta nota será removida permanentemente."
+  },
+  "validation": {
+    "required": "Este campo é obrigatório.",
+    "invalidEmail": "Digite um email válido.",
+    "passwordTooShort": "A senha deve ter pelo menos 8 caracteres.",
+    "nameTooShort": "O nome deve ter pelo menos 2 caracteres.",
+    "passwordsDontMatch": "As senhas não coincidem."
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "description": "A página que você procura não existe."
+  },
+  "theme": { "toggle": "Alternar modo escuro" }
+}
