@@ -1,0 +1,13 @@
+<!-- src/app/shared/theme-toggle/theme-toggle.html -->
+<button
+  type="button"
+  (click)="themeService.toggle()"
+  [attr.aria-label]="'theme.toggle' | translate"
+  class="rounded px-2 py-1 text-sm"
+>
+  @if (themeService.theme() === 'dark') {
+    🌙
+  } @else {
+    ☀️
+  }
+</button>
