@@ -8,14 +8,6 @@ import express from 'express';
 import { join } from 'node:path';
 import { parseEnv } from './env.schema';
 
-let env: ReturnType<typeof parseEnv>;
-try {
-  env = parseEnv();
-} catch (err) {
-  console.error((err as Error).message);
-  process.exit(1);
-}
-
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
@@ -59,6 +51,13 @@ app.use((req, res, next) => {
  * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */
 if (isMainModule(import.meta.url) || process.env['pm_id']) {
+  let env: ReturnType<typeof parseEnv>;
+  try {
+    env = parseEnv();
+  } catch (err) {
+    console.error((err as Error).message);
+    process.exit(1);
+  }
   const port = env.PORT;
   app.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
