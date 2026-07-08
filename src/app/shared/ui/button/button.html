@@ -1,0 +1,12 @@
+<button
+  [type]="type()"
+  [disabled]="disabled()"
+  class="rounded px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
+  [class.bg-blue-600]="variant() === 'primary'"
+  [class.text-white]="variant() !== 'secondary'"
+  [class.bg-gray-200]="variant() === 'secondary'"
+  [class.text-gray-900]="variant() === 'secondary'"
+  [class.bg-red-600]="variant() === 'danger'"
+>
+  <ng-content />
+</button>

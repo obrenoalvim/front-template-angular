@@ -1,0 +1,15 @@
+<label class="flex flex-col gap-1 text-sm">
+  <span class="font-medium">{{ label() }}</span>
+  <input
+    [type]="type()"
+    [value]="value"
+    [disabled]="disabled"
+    (input)="handleInput($any($event.target).value)"
+    (blur)="onTouched()"
+    class="rounded border px-3 py-2"
+    [class.border-red-500]="errorMessage()"
+  />
+  @if (errorMessage()) {
+    <span class="text-xs text-red-600">{{ errorMessage() }}</span>
+  }
+</label>
