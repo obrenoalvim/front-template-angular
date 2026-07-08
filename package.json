@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "predev": "node scripts/generate-env.mjs",
     "start": "ng serve",
+    "prebuild": "node scripts/generate-env.mjs",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "jest",
@@ -35,7 +37,8 @@
     "@angular/ssr": "^21.2.18",
     "express": "^5.1.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@angular/build": "^21.2.18",
@@ -47,6 +50,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^20.17.19",
     "angular-eslint": "21.4.0",
+    "dotenv": "^17.4.2",
     "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
