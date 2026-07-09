@@ -46,6 +46,22 @@ describe('ApiClient', () => {
     req.flush({ message: 'Not found' }, { status: 404, statusText: 'Not Found' });
   });
 
+  it("normalizes back-template-nest's nested { error: { message } } shape into an ApiError", (done) => {
+    client.get('/notes').subscribe({
+      error: (err: unknown) => {
+        expect(err).toBeInstanceOf(ApiError);
+        expect((err as ApiError).status).toBe(409);
+        expect((err as ApiError).message).toBe('Email already registered');
+        done();
+      },
+    });
+    const req = httpMock.expectOne('https://api.example.com/notes');
+    req.flush(
+      { error: { statusCode: 409, message: 'Email already registered', timestamp: 'x' } },
+      { status: 409, statusText: 'Conflict' },
+    );
+  });
+
   it('normalizes network errors (status 0) into an ApiError', (done) => {
     client.get('/notes').subscribe({
       error: (err: unknown) => {

@@ -28,9 +28,9 @@ export class ApiClient {
       .pipe(catchError((err: unknown) => this.normalize(err)));
   }
 
-  delete<T>(path: string): Observable<T> {
+  delete<T>(path: string, body?: unknown): Observable<T> {
     return this.http
-      .delete<T>(this.url(path))
+      .delete<T>(this.url(path), body !== undefined ? { body } : undefined)
       .pipe(catchError((err: unknown) => this.normalize(err)));
   }
 
@@ -41,12 +41,20 @@ export class ApiClient {
   private normalize(err: unknown): Observable<never> {
     if (err instanceof HttpErrorResponse) {
       const body = err.error as unknown;
-      const message =
-        body && typeof body === 'object' && 'message' in body
-          ? String((body as { message?: unknown }).message)
-          : err.message || 'Unexpected error';
+      const message = this.extractMessage(body) ?? err.message ?? 'Unexpected error';
       return throwError(() => new ApiError(err.status, message, body));
     }
     return throwError(() => new ApiError(0, 'Network error', err));
+  }
+
+  // Accepts both a flat `{ message }` shape and back-template-nest's
+  // AllExceptionsFilter shape (`{ error: { message } }`), so this client
+  // works against either convention without a backend-specific branch.
+  private extractMessage(body: unknown): string | null {
+    if (!body || typeof body !== 'object') return null;
+    const flat = (body as { message?: unknown }).message;
+    if (typeof flat === 'string') return flat;
+    const nested = (body as { error?: { message?: unknown } }).error?.message;
+    return typeof nested === 'string' ? nested : null;
   }
 }
