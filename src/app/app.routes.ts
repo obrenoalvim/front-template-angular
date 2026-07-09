@@ -8,6 +8,7 @@ import { ForgotPassword } from './features/auth/forgot-password/forgot-password'
 import { ResetPassword } from './features/auth/reset-password/reset-password';
 import { Dashboard } from './features/dashboard/dashboard';
 import { Account } from './features/account/account';
+import { Notes } from './features/notes/notes';
 import { NotFound } from './features/not-found/not-found';
 
 export const routes: Routes = [
@@ -27,6 +28,7 @@ export const routes: Routes = [
         children: [
           { path: 'dashboard', component: Dashboard },
           { path: 'account', component: Account },
+          { path: 'notes', component: Notes },
         ],
       },
       { path: '**', component: NotFound },

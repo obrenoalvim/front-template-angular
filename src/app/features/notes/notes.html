@@ -1,0 +1,63 @@
+<div class="mx-auto flex max-w-3xl flex-col gap-6 py-12">
+  <h1 class="text-xl font-semibold">{{ 'notes.title' | translate }}</h1>
+
+  <app-card>
+    <form
+      [formGroup]="form"
+      (ngSubmit)="create()"
+      class="flex flex-col gap-4 sm:flex-row sm:items-end"
+    >
+      <app-text-field [label]="'notes.create.titleLabel' | translate" formControlName="title" />
+      <app-text-field [label]="'notes.create.contentLabel' | translate" formControlName="content" />
+      <app-button type="submit" [disabled]="form.invalid">{{
+        'notes.create.submit' | translate
+      }}</app-button>
+    </form>
+  </app-card>
+
+  @if (notesResource.isLoading()) {
+    <p class="text-sm text-gray-500">…</p>
+  } @else if (sortedNotes().length === 0) {
+    <p class="text-sm text-gray-500">{{ 'notes.empty' | translate }}</p>
+  } @else {
+    <table cdk-table [dataSource]="sortedNotes()" class="w-full text-left text-sm">
+      <ng-container cdkColumnDef="title">
+        <th
+          cdk-header-cell
+          *cdkHeaderCellDef
+          (click)="sortBy('title')"
+          class="cursor-pointer py-2 font-medium"
+        >
+          {{ 'notes.columns.title' | translate }}
+        </th>
+        <td cdk-cell *cdkCellDef="let note" class="py-2">{{ note.title }}</td>
+      </ng-container>
+
+      <ng-container cdkColumnDef="createdAt">
+        <th
+          cdk-header-cell
+          *cdkHeaderCellDef
+          (click)="sortBy('createdAt')"
+          class="cursor-pointer py-2 font-medium"
+        >
+          {{ 'notes.columns.createdAt' | translate }}
+        </th>
+        <td cdk-cell *cdkCellDef="let note" class="py-2">{{ note.createdAt | date }}</td>
+      </ng-container>
+
+      <ng-container cdkColumnDef="actions">
+        <th cdk-header-cell *cdkHeaderCellDef class="py-2 font-medium">
+          {{ 'notes.columns.actions' | translate }}
+        </th>
+        <td cdk-cell *cdkCellDef="let note" class="py-2">
+          <app-button variant="danger" (click)="remove(note)">{{
+            'notes.delete' | translate
+          }}</app-button>
+        </td>
+      </ng-container>
+
+      <tr cdk-header-row *cdkHeaderRowDef="columns"></tr>
+      <tr cdk-row *cdkRowDef="let row; columns: columns"></tr>
+    </table>
+  }
+</div>
