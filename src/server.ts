@@ -11,7 +11,23 @@ import { parseEnv } from './env.schema';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+
+// Angular's SSR engine rejects (falls back to CSR, soon a hard 400) any
+// request whose Host header doesn't match an allowed hostname — an SSRF
+// guard. Without this, every request served through Docker/a real deploy
+// gets silently downgraded to client-only rendering the moment the actual
+// Host header (the real domain, or 127.0.0.1 in local testing) doesn't
+// match whatever this defaults to. Deriving it from SITE_URL means the one
+// env var already used for canonical/OG tags also authorizes SSR for that
+// same domain, instead of requiring a second, easy-to-forget env var.
+const allowedHosts = (() => {
+  try {
+    return process.env['SITE_URL'] ? [new URL(process.env['SITE_URL']).hostname] : undefined;
+  } catch {
+    return undefined;
+  }
+})();
+const angularApp = new AngularNodeAppEngine({ allowedHosts });
 
 /**
  * Example Express Rest API endpoints can be defined here.
@@ -24,6 +40,10 @@ const angularApp = new AngularNodeAppEngine();
  * });
  * ```
  */
+
+app.get('/api/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 /**
  * Serve static files from /browser
