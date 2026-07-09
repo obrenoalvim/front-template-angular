@@ -7,7 +7,9 @@ import {
   RouterStateSnapshot,
   provideRouter,
 } from '@angular/router';
+import { provideTranslateService } from '@ngx-translate/core';
 import { localeGuard } from './locale.guard';
+import { LocaleService } from './locale.service';
 
 function runGuard(lang: string | null) {
   return TestBed.runInInjectionContext(() =>
@@ -21,12 +23,21 @@ function runGuard(lang: string | null) {
 describe('localeGuard', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideZonelessChangeDetection(), provideRouter([])],
+      providers: [provideZonelessChangeDetection(), provideRouter([]), provideTranslateService()],
     });
   });
 
   it('allows a supported locale', () => {
     expect(runGuard('pt')).toBe(true);
+  });
+
+  it("syncs LocaleService to the URL's :lang segment, not a stale stored value", () => {
+    const locale = TestBed.inject(LocaleService);
+    locale.setLocale('pt');
+
+    runGuard('en');
+
+    expect(locale.locale()).toBe('en');
   });
 
   it('redirects an unsupported locale to /en', () => {

@@ -1,0 +1,34 @@
+<div class="mx-auto flex max-w-sm flex-col gap-4 py-12">
+  <app-card>
+    <h1 class="mb-4 text-xl font-semibold">{{ 'auth.login.title' | translate }}</h1>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
+      <app-text-field
+        [label]="'auth.fields.email' | translate"
+        type="email"
+        formControlName="email"
+        [error]="
+          form.controls.email.touched && form.controls.email.errors?.['zod']
+            ? (form.controls.email.errors!['zod'] | translate)
+            : null
+        "
+      />
+      <app-text-field
+        [label]="'auth.fields.password' | translate"
+        type="password"
+        formControlName="password"
+        [error]="
+          form.controls.password.touched && form.controls.password.errors?.['zod']
+            ? (form.controls.password.errors!['zod'] | translate)
+            : null
+        "
+      />
+      <app-button type="submit" [disabled]="form.invalid">{{
+        'auth.login.submit' | translate
+      }}</app-button>
+    </form>
+    <p class="mt-4 text-sm">
+      {{ 'auth.login.noAccount' | translate }}
+      <a appLocaleLink="/register" class="underline">{{ 'auth.login.registerLink' | translate }}</a>
+    </p>
+  </app-card>
+</div>

@@ -4,5 +4,16 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  color-scheme: light dark;
+  /* Only hints "dark" to the browser once `.dark` is actually applied by
+     ThemeService. `light dark` unconditionally here made Chrome render its
+     own dark-mode UA defaults (e.g. white default text color) whenever the
+     OS/browser prefers dark, even on pages where ThemeService hasn't been
+     instantiated yet (nothing on the page injects it) and `.dark` was never
+     added — text on Tailwind's light-mode white card backgrounds became
+     invisible white-on-white. */
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
 }
