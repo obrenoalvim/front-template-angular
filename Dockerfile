@@ -11,11 +11,15 @@ FROM node:22-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Placeholder env vars so `ng build` (route data collection) and the
-# sitemap-generation step never fail on missing config — the real values are
-# injected at container runtime.
-ENV API_BASE_URL=https://api.example.com
-ENV SITE_URL=https://example.com
+# API_BASE_URL is baked into the CLIENT bundle at build time (environment.ts)
+# — it is NOT a true runtime env var like SITE_URL (used server-side for the
+# Host allowlist) or PORT. The browser, not this container, makes API calls,
+# so it needs a real, build-time-correct value here to actually reach a
+# backend; --build-arg overrides these placeholders when you have one.
+ARG API_BASE_URL=https://api.example.com
+ARG SITE_URL=https://example.com
+ENV API_BASE_URL=${API_BASE_URL}
+ENV SITE_URL=${SITE_URL}
 RUN npm run build
 
 # ---- runtime ----
