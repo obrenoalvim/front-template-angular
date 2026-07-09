@@ -1,0 +1,30 @@
+# front-template-angular
+
+A clone-and-go Angular frontend template: standalone components, Signals,
+zoneless change detection, SSR, Tailwind CSS v4, a copy-in UI kit, and
+client-side auth against a REST API.
+
+## Stack
+Angular (standalone, zoneless, strict TS) · Angular SSR (Node/Express) ·
+Tailwind CSS v4 · Angular CDK · ngx-translate (en/pt) · Zod (env + form
+validation) · Jest · Playwright · ESLint + Prettier · Docker.
+
+## Structure
+- src/app/core — cross-cutting services (ApiClient, AuthService, ThemeService,
+  LocaleService, ToastService, SeoService) and the Zod validator bridge.
+- src/app/shared — the copy-in UI kit (Button, TextField, Card, Dialog, Toast)
+  and the Header/Footer/LocaleSwitcher/ThemeToggle shell components.
+- src/app/features — routed pages: home, auth (login/register/forgot/reset),
+  dashboard, account, notes (example CRUD with CDK Table).
+
+## Auth
+Client-side only. `AuthService` calls a REST API at `API_BASE_URL`:
+`POST /auth/login` (returns `{ accessToken }`, user identity decoded
+client-side from the JWT payload), `POST /auth/register` (returns
+`{ id, email }`, no auto-login — email verification is a separate step),
+`POST /auth/forgot-password`, `POST /auth/reset-password`,
+`PATCH /account/password`, `DELETE /account` (requires the current password
+in the body). A single `authGuard` protects `/dashboard`, `/account`, `/notes`.
+
+## Contact / source
+See the repository README for setup, environment variables, and design notes.

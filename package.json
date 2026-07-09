@@ -6,7 +6,7 @@
     "predev": "node scripts/generate-env.mjs",
     "start": "ng serve",
     "prebuild": "node scripts/generate-env.mjs",
-    "build": "ng build",
+    "build": "ng build && node scripts/generate-sitemap.mjs dist/front-template-angular/browser",
     "watch": "ng build --watch --configuration development",
     "test": "jest",
     "test:watch": "jest --watch",
