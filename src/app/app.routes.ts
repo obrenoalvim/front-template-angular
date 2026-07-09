@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
 import { localeGuard } from './core/i18n/locale.guard';
+import { authGuard } from './core/auth/auth.guard';
 import { Home } from './features/home/home';
 import { Login } from './features/auth/login/login';
 import { Register } from './features/auth/register/register';
 import { ForgotPassword } from './features/auth/forgot-password/forgot-password';
 import { ResetPassword } from './features/auth/reset-password/reset-password';
+import { Dashboard } from './features/dashboard/dashboard';
 import { NotFound } from './features/not-found/not-found';
 
 export const routes: Routes = [
@@ -18,6 +20,11 @@ export const routes: Routes = [
       { path: 'register', component: Register },
       { path: 'forgot-password', component: ForgotPassword },
       { path: 'reset-password', component: ResetPassword },
+      {
+        path: '',
+        canActivate: [authGuard],
+        children: [{ path: 'dashboard', component: Dashboard }],
+      },
       { path: '**', component: NotFound },
     ],
   },

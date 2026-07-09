@@ -1,0 +1,10 @@
+<div class="mx-auto max-w-2xl py-12">
+  <app-card>
+    <h1 class="text-xl font-semibold">{{ 'nav.dashboard' | translate }}</h1>
+    <!-- back-template-nest's User has no `name` field — email is the only
+         identifying info available on the decoded session. -->
+    @if (auth.currentUser(); as user) {
+      <p class="mt-2 text-sm">{{ user.email }}</p>
+    }
+  </app-card>
+</div>
