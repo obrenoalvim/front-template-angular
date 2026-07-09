@@ -15,7 +15,11 @@ export class LocaleSwitcher {
   switchTo(next: (typeof SUPPORTED_LOCALES)[number]): void {
     const current = this.locale.locale();
     this.locale.setLocale(next);
-    const rest = this.router.url.slice(`/${current}`.length) || '/';
+    // On the home page (`/en`), `rest` is '' — the old `|| '/'` fallback
+    // turned that into a spurious trailing slash (`/pt/`), which the router
+    // parses as an extra empty path segment and fails to match against
+    // `{ path: '' }`, falling through to the NotFound catch-all instead.
+    const rest = this.router.url.slice(`/${current}`.length);
     this.router.navigateByUrl(`/${next}${rest}`);
   }
 }
