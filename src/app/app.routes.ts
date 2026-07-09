@@ -7,6 +7,7 @@ import { Register } from './features/auth/register/register';
 import { ForgotPassword } from './features/auth/forgot-password/forgot-password';
 import { ResetPassword } from './features/auth/reset-password/reset-password';
 import { Dashboard } from './features/dashboard/dashboard';
+import { Account } from './features/account/account';
 import { NotFound } from './features/not-found/not-found';
 
 export const routes: Routes = [
@@ -23,7 +24,10 @@ export const routes: Routes = [
       {
         path: '',
         canActivate: [authGuard],
-        children: [{ path: 'dashboard', component: Dashboard }],
+        children: [
+          { path: 'dashboard', component: Dashboard },
+          { path: 'account', component: Account },
+        ],
       },
       { path: '**', component: NotFound },
     ],

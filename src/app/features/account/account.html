@@ -1,0 +1,49 @@
+<div class="mx-auto flex max-w-lg flex-col gap-6 py-12">
+  <h1 class="text-xl font-semibold">{{ 'account.title' | translate }}</h1>
+
+  <app-card>
+    <h2 class="mb-4 font-medium">{{ 'account.password.title' | translate }}</h2>
+    <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" class="flex flex-col gap-4">
+      <app-text-field
+        [label]="'auth.fields.currentPassword' | translate"
+        type="password"
+        formControlName="currentPassword"
+      />
+      <app-text-field
+        [label]="'auth.fields.newPassword' | translate"
+        type="password"
+        formControlName="newPassword"
+      />
+      <app-text-field
+        [label]="'auth.fields.confirmPassword' | translate"
+        type="password"
+        formControlName="confirmPassword"
+        [error]="
+          passwordForm.touched && passwordForm.errors?.['zod']
+            ? (passwordForm.errors!['zod'] | translate)
+            : null
+        "
+      />
+      <app-button type="submit" [disabled]="passwordForm.invalid">{{
+        'account.password.submit' | translate
+      }}</app-button>
+    </form>
+  </app-card>
+
+  <app-card>
+    <h2 class="mb-2 font-medium text-red-600">{{ 'account.danger.title' | translate }}</h2>
+    <p class="mb-4 text-sm text-gray-600 dark:text-gray-300">
+      {{ 'account.danger.description' | translate }}
+    </p>
+    <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()" class="flex flex-col gap-4">
+      <app-text-field
+        [label]="'auth.fields.password' | translate"
+        type="password"
+        formControlName="password"
+      />
+      <app-button type="submit" variant="danger" [disabled]="deleteForm.invalid">{{
+        'account.danger.submit' | translate
+      }}</app-button>
+    </form>
+  </app-card>
+</div>
