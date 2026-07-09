@@ -3,10 +3,12 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { LocaleService, isSupportedLocale } from './core/i18n/locale.service';
 import { ToastContainer } from './shared/ui/toast/toast-container';
+import { Header } from './shared/header/header';
+import { Footer } from './shared/footer/footer';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ToastContainer],
+  imports: [RouterOutlet, ToastContainer, Header, Footer],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

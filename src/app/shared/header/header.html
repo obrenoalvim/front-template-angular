@@ -1,0 +1,16 @@
+<header class="flex items-center justify-between border-b px-4 py-3 dark:border-gray-700">
+  <a appLocaleLink="/" class="font-semibold">front-template-angular</a>
+  <nav class="flex items-center gap-4 text-sm">
+    @if (auth.isAuthenticated()) {
+      <a appLocaleLink="/dashboard">{{ 'nav.dashboard' | translate }}</a>
+      <a appLocaleLink="/notes">{{ 'nav.notes' | translate }}</a>
+      <a appLocaleLink="/account">{{ 'nav.account' | translate }}</a>
+      <button type="button" (click)="logout()">{{ 'nav.logout' | translate }}</button>
+    } @else {
+      <a appLocaleLink="/login">{{ 'nav.login' | translate }}</a>
+      <a appLocaleLink="/register">{{ 'nav.register' | translate }}</a>
+    }
+    <app-locale-switcher />
+    <app-theme-toggle />
+  </nav>
+</header>
