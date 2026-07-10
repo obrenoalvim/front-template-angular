@@ -38,20 +38,27 @@ describe('AuthService', () => {
 
   afterEach(() => httpMock.verify());
 
+  function login() {
+    const token = fakeJwt({ sub: 'user-1', email: 'a@b.com', role: 'user' });
+    service.login('a@b.com', 'password123').subscribe();
+    httpMock
+      .expectOne('https://api.example.com/auth/login')
+      .flush({ accessToken: token, refreshToken: 'refresh-token-1' });
+    return token;
+  }
+
   it('starts unauthenticated with no stored session', () => {
     expect(service.isAuthenticated()).toBe(false);
     expect(service.currentUser()).toBeNull();
   });
 
-  it('login() decodes the accessToken, stores the session, and updates currentUser', () => {
-    const token = fakeJwt({ sub: 'user-1', email: 'a@b.com' });
-
-    service.login('a@b.com', 'password123').subscribe();
-    httpMock.expectOne('https://api.example.com/auth/login').flush({ accessToken: token });
+  it('login() decodes the accessToken, stores both tokens, and updates currentUser', () => {
+    const token = login();
 
     expect(service.isAuthenticated()).toBe(true);
-    expect(service.currentUser()).toEqual({ id: 'user-1', email: 'a@b.com' });
+    expect(service.currentUser()).toEqual({ id: 'user-1', email: 'a@b.com', role: 'user' });
     expect(TestBed.inject(AuthStorage).getToken()).toBe(token);
+    expect(TestBed.inject(AuthStorage).getRefreshToken()).toBe('refresh-token-1');
   });
 
   it('register() posts email/password and does not auto-authenticate (no token in the response)', () => {
@@ -64,9 +71,7 @@ describe('AuthService', () => {
   });
 
   it('deleteAccount() sends the password in the DELETE body and logs out on success', () => {
-    const token = fakeJwt({ sub: 'user-1', email: 'a@b.com' });
-    service.login('a@b.com', 'password123').subscribe();
-    httpMock.expectOne('https://api.example.com/auth/login').flush({ accessToken: token });
+    login();
 
     service.deleteAccount('password123').subscribe();
     const req = httpMock.expectOne('https://api.example.com/account');
@@ -74,17 +79,33 @@ describe('AuthService', () => {
     expect(req.request.body).toEqual({ password: 'password123' });
     req.flush({ deleted: true });
 
+    httpMock.expectOne('https://api.example.com/auth/logout').flush({ loggedOut: true });
+
     expect(service.isAuthenticated()).toBe(false);
     expect(TestBed.inject(AuthStorage).getToken()).toBeNull();
   });
 
-  it('logout() clears the session', () => {
-    const token = fakeJwt({ sub: 'user-1', email: 'a@b.com' });
-    service.login('a@b.com', 'password123').subscribe();
-    httpMock.expectOne('https://api.example.com/auth/login').flush({ accessToken: token });
+  it('logout() clears the session and revokes the refresh token server-side', () => {
+    login();
 
     service.logout();
+    const req = httpMock.expectOne('https://api.example.com/auth/logout');
+    expect(req.request.body).toEqual({ refreshToken: 'refresh-token-1' });
+    req.flush({ loggedOut: true });
+
     expect(service.isAuthenticated()).toBe(false);
     expect(TestBed.inject(AuthStorage).getToken()).toBeNull();
+  });
+
+  it('refreshAccessToken() exchanges the stored refresh token for a new pair', () => {
+    login();
+
+    service.refreshAccessToken().subscribe();
+    const req = httpMock.expectOne('https://api.example.com/auth/refresh');
+    expect(req.request.body).toEqual({ refreshToken: 'refresh-token-1' });
+    req.flush({ accessToken: 'new-access', refreshToken: 'new-refresh' });
+
+    expect(TestBed.inject(AuthStorage).getToken()).toBe('new-access');
+    expect(TestBed.inject(AuthStorage).getRefreshToken()).toBe('new-refresh');
   });
 });

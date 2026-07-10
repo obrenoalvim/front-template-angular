@@ -67,13 +67,17 @@ See `.env.example` for the full, commented list.
 Client-side only, against whatever REST API you point `API_BASE_URL` at. `AuthService` (`src/app/core/auth/auth.service.ts`) expects — verified live against the real [back-template-nest](https://github.com/obrenoalvim/back-template-nest), not just assumed:
 
 - `POST /auth/register` → `{ id, email }` — **no token, no auto-login.** This template's reference backend treats email verification as a separate step, so registering sends the user to `/login`, not `/dashboard`. There is no `name` field anywhere — the User model this was built against doesn't have one.
-- `POST /auth/login` → `{ accessToken }` **only** — no user object. `AuthService` decodes the JWT's payload client-side (`sub`/`email`/`role`) to populate `currentUser`; this is for display only, not a trust boundary — real authorization is still enforced server-side on every API call via the token itself.
+- `POST /auth/login` → `{ accessToken, refreshToken }` — no user object. `AuthService` decodes the access token's payload client-side (`sub`/`email`/`role`) to populate `currentUser`; this is for display only, not a trust boundary — real authorization is still enforced server-side on every API call via the token itself.
 - `POST /auth/forgot-password`, `POST /auth/reset-password`
 - `PATCH /account/password` (change password), `DELETE /account` (requires the **current password** in the body — collected via a form field on the Account page, since `ConfirmDialog` only returns yes/no, not text input)
 
 Pages: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/account`. `src/app/core/auth/auth.guard.ts` is the **one** guard protecting `/dashboard`, `/account`, `/notes`, `/admin` — applied once on a parent route, not per page. Toast feedback on every auth action goes through `ToastService`.
 
 If you point this at a backend with a different contract (a `name` field, a combined login response, etc.), the one file to change is `auth.service.ts` — nothing else references the backend's exact shapes directly.
+
+## Sessions
+
+The access token is short-lived (back-template-nest defaults to 15 minutes). `src/app/core/auth/auth.interceptor.ts` catches a `401`, calls `POST /auth/refresh` with the stored refresh token, retries the failed request once with the new access token — the rest of the app never sees a stray 401 from an expired token. Concurrent requests that all 401 around the same time share a single in-flight refresh (a module-level `Subject`, not one refresh per request) so they don't race the backend's rotation and invalidate each other's refresh token. If the refresh itself fails (refresh token expired/revoked), the interceptor calls `AuthService.logout()` and lets the original error through — `authGuard` sends the user to `/login` on the next navigation. `logout()` also POSTs to `/auth/logout` to revoke the refresh token server-side (best-effort — the local session is cleared either way).
 
 ## Roles
 

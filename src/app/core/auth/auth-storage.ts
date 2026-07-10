@@ -4,6 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import type { User } from './auth.service';
 
 const TOKEN_KEY = 'auth_token';
+const REFRESH_TOKEN_KEY = 'auth_refresh_token';
 const USER_KEY = 'auth_user';
 export const SESSION_COOKIE = 'has_session';
 
@@ -15,15 +16,20 @@ export class AuthStorage {
     return this.isBrowser() ? localStorage.getItem(TOKEN_KEY) : null;
   }
 
+  getRefreshToken(): string | null {
+    return this.isBrowser() ? localStorage.getItem(REFRESH_TOKEN_KEY) : null;
+  }
+
   getUser(): User | null {
     if (!this.isBrowser()) return null;
     const raw = localStorage.getItem(USER_KEY);
     return raw ? (JSON.parse(raw) as User) : null;
   }
 
-  setSession(token: string, user: User): void {
+  setSession(token: string, refreshToken: string, user: User): void {
     if (!this.isBrowser()) return;
     localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
     // A tiny non-HttpOnly marker cookie (never the JWT itself) so authGuard
     // can tell during SSR that *some* session exists — SSR has no access to
@@ -34,9 +40,17 @@ export class AuthStorage {
     document.cookie = `${SESSION_COOKIE}=1; path=/; max-age=${60 * 60 * 24 * 7}; samesite=lax`;
   }
 
+  /** Updates just the tokens after a silent refresh — the user object doesn't change. */
+  setTokens(token: string, refreshToken: string): void {
+    if (!this.isBrowser()) return;
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+  }
+
   clear(): void {
     if (!this.isBrowser()) return;
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     document.cookie = `${SESSION_COOKIE}=; path=/; max-age=0`;
   }

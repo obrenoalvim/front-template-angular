@@ -67,13 +67,17 @@ Ver `.env.example` pra lista completa e comentada.
 Só client-side, contra qualquer API REST que você apontar `API_BASE_URL`. `AuthService` (`src/app/core/auth/auth.service.ts`) espera — verificado ao vivo contra o [back-template-nest](https://github.com/obrenoalvim/back-template-nest) real, não só suposto:
 
 - `POST /auth/register` → `{ id, email }` — **sem token, sem auto-login.** O backend de referência desse template trata verificação de email como um passo separado, então registrar manda o usuário pro `/login`, não pro `/dashboard`. Não tem campo `name` em lugar nenhum — o model de User contra o qual isso foi construído não tem um.
-- `POST /auth/login` → `{ accessToken }` **só** — sem objeto de usuário. `AuthService` decodifica o payload do JWT client-side (`sub`/`email`/`role`) pra popular `currentUser`; isso é só pra exibição, não uma fronteira de confiança — autorização de verdade continua sendo aplicada server-side em toda chamada de API via o próprio token.
+- `POST /auth/login` → `{ accessToken, refreshToken }` — sem objeto de usuário. `AuthService` decodifica o payload do access token client-side (`sub`/`email`/`role`) pra popular `currentUser`; isso é só pra exibição, não uma fronteira de confiança — autorização de verdade continua sendo aplicada server-side em toda chamada de API via o próprio token.
 - `POST /auth/forgot-password`, `POST /auth/reset-password`
 - `PATCH /account/password` (trocar senha), `DELETE /account` (exige a **senha atual** no body — coletada via campo de formulário na página de Account, já que `ConfirmDialog` só retorna sim/não, não input de texto)
 
 Páginas: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/account`. `src/app/core/auth/auth.guard.ts` é o **único** guard protegendo `/dashboard`, `/account`, `/notes`, `/admin` — aplicado uma vez numa rota pai, não por página. Feedback via toast em toda ação de auth passa pelo `ToastService`.
 
 Se você apontar isso pra um backend com contrato diferente (um campo `name`, uma resposta de login combinada, etc.), o único arquivo pra mudar é `auth.service.ts` — nada mais referencia os shapes exatos do backend diretamente.
+
+## Sessões
+
+O access token é de vida curta (back-template-nest usa 15 minutos por default). `src/app/core/auth/auth.interceptor.ts` pega um `401`, chama `POST /auth/refresh` com o refresh token guardado, tenta de novo a requisição que falhou uma vez com o novo access token — o resto da app nunca vê um 401 avulso de token expirado. Requisições concorrentes que tomam 401 mais ou menos na mesma hora compartilham um único refresh em andamento (um `Subject` a nível de módulo, não um refresh por requisição), pra não competir com a rotação do backend e invalidar o refresh token umas das outras. Se o próprio refresh falhar (refresh token expirado/revogado), o interceptor chama `AuthService.logout()` e deixa o erro original passar — o `authGuard` manda o usuário pro `/login` na próxima navegação. `logout()` também faz POST pra `/auth/logout` pra revogar o refresh token server-side (best-effort — a sessão local é limpa de qualquer jeito).
 
 ## Roles
 

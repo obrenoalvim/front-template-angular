@@ -12,17 +12,19 @@ export interface User {
 
 // back-template-nest's real contract (verified against src/auth/auth.service.ts
 // and src/auth/dto/*): register returns the created user with NO token (email
-// verification is separate, login is a distinct step); login returns ONLY an
-// accessToken, no user object. There is no `name` field on the User model and
-// no endpoint to fetch/update a display name yet — updateProfile() is
-// intentionally not implemented here until a real endpoint exists.
+// verification is separate, login is a distinct step); login returns an
+// access+refresh token pair, no user object. There is no `name` field on the
+// User model and no endpoint to fetch/update a display name yet —
+// updateProfile() is intentionally not implemented here until a real endpoint
+// exists.
 interface RegisterResponse {
   id: string;
   email: string;
 }
 
-interface LoginResponse {
+interface TokenPairResponse {
   accessToken: string;
+  refreshToken: string;
 }
 
 interface JwtPayload {
@@ -46,11 +48,11 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
 
   login(email: string, password: string): Observable<User> {
-    return this.api.post<LoginResponse>('/auth/login', { email, password }).pipe(
+    return this.api.post<TokenPairResponse>('/auth/login', { email, password }).pipe(
       map((res) => {
         const payload = decodeJwtPayload(res.accessToken);
         const user: User = { id: payload.sub, email: payload.email, role: payload.role };
-        this.storage.setSession(res.accessToken, user);
+        this.storage.setSession(res.accessToken, res.refreshToken, user);
         this.currentUser.set(user);
         return user;
       }),
@@ -82,8 +84,21 @@ export class AuthService {
       .pipe(tap(() => this.logout()));
   }
 
+  /** Called only by the refresh-on-401 interceptor — not part of the public login/logout flow. */
+  refreshAccessToken(): Observable<TokenPairResponse> {
+    const refreshToken = this.storage.getRefreshToken();
+    return this.api
+      .post<TokenPairResponse>('/auth/refresh', { refreshToken })
+      .pipe(tap((res) => this.storage.setTokens(res.accessToken, res.refreshToken)));
+  }
+
   logout(): void {
+    const refreshToken = this.storage.getRefreshToken();
     this.storage.clear();
     this.currentUser.set(null);
+    if (refreshToken) {
+      // Best-effort — session is already cleared client-side either way.
+      this.api.post('/auth/logout', { refreshToken }).subscribe({ error: () => undefined });
+    }
   }
 }
