@@ -6,6 +6,7 @@
     "dashboard": "Painel",
     "account": "Conta",
     "notes": "Notas",
+    "admin": "Admin",
     "logout": "Sair"
   },
   "home": {
@@ -70,6 +71,11 @@
       "cancelAction": "Cancelar",
       "success": "Conta excluída."
     }
+  },
+  "admin": {
+    "title": "Admin",
+    "email": "E-mail",
+    "role": "Role"
   },
   "notes": {
     "title": "Notas",

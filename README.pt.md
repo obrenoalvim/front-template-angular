@@ -67,13 +67,17 @@ Ver `.env.example` pra lista completa e comentada.
 Só client-side, contra qualquer API REST que você apontar `API_BASE_URL`. `AuthService` (`src/app/core/auth/auth.service.ts`) espera — verificado ao vivo contra o [back-template-nest](https://github.com/obrenoalvim/back-template-nest) real, não só suposto:
 
 - `POST /auth/register` → `{ id, email }` — **sem token, sem auto-login.** O backend de referência desse template trata verificação de email como um passo separado, então registrar manda o usuário pro `/login`, não pro `/dashboard`. Não tem campo `name` em lugar nenhum — o model de User contra o qual isso foi construído não tem um.
-- `POST /auth/login` → `{ accessToken }` **só** — sem objeto de usuário. `AuthService` decodifica o payload do JWT client-side (`sub`/`email`) pra popular `currentUser`; isso é só pra exibição, não uma fronteira de confiança — autorização de verdade continua sendo aplicada server-side em toda chamada de API via o próprio token.
+- `POST /auth/login` → `{ accessToken }` **só** — sem objeto de usuário. `AuthService` decodifica o payload do JWT client-side (`sub`/`email`/`role`) pra popular `currentUser`; isso é só pra exibição, não uma fronteira de confiança — autorização de verdade continua sendo aplicada server-side em toda chamada de API via o próprio token.
 - `POST /auth/forgot-password`, `POST /auth/reset-password`
 - `PATCH /account/password` (trocar senha), `DELETE /account` (exige a **senha atual** no body — coletada via campo de formulário na página de Account, já que `ConfirmDialog` só retorna sim/não, não input de texto)
 
-Páginas: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/account`. `src/app/core/auth/auth.guard.ts` é o **único** guard protegendo `/dashboard`, `/account`, `/notes` — aplicado uma vez numa rota pai, não por página. Feedback via toast em toda ação de auth passa pelo `ToastService`.
+Páginas: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/account`. `src/app/core/auth/auth.guard.ts` é o **único** guard protegendo `/dashboard`, `/account`, `/notes`, `/admin` — aplicado uma vez numa rota pai, não por página. Feedback via toast em toda ação de auth passa pelo `ToastService`.
 
 Se você apontar isso pra um backend com contrato diferente (um campo `name`, uma resposta de login combinada, etc.), o único arquivo pra mudar é `auth.service.ts` — nada mais referencia os shapes exatos do backend diretamente.
+
+## Roles
+
+`currentUser().role` (`'user'` | `'admin'`) vem direto do JWT — nunca confia num `role` que você mesmo manda numa requisição. `/admin` (`src/app/features/admin`) é a referência pra uma página admin-only: `admin.guard.ts` checa o role client-side e redireciona pra `/dashboard` senão. No SSR falha fechado (sem jeito de ler o payload do JWT client-side no servidor, mesma limitação que `auth.guard.ts` documenta pra própria checagem) — o client roda o guard de novo logo após a hidratação com a resposta real. Isso é só UX; o gate de verdade é o `RolesGuard` do `back-template-nest` rejeitando a requisição. Promove um usuário pelo lado Nest (muda a coluna `role`, depois loga de novo pra pegar um token com a claim nova).
 
 ## i18n
 

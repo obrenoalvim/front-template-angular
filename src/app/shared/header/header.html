@@ -4,6 +4,9 @@
     @if (auth.isAuthenticated()) {
       <a appLocaleLink="/dashboard">{{ 'nav.dashboard' | translate }}</a>
       <a appLocaleLink="/notes">{{ 'nav.notes' | translate }}</a>
+      @if (auth.currentUser()?.role === 'admin') {
+        <a appLocaleLink="/admin">{{ 'nav.admin' | translate }}</a>
+      }
       <a appLocaleLink="/account">{{ 'nav.account' | translate }}</a>
       <button type="button" (click)="logout()">{{ 'nav.logout' | translate }}</button>
     } @else {

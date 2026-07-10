@@ -67,13 +67,17 @@ See `.env.example` for the full, commented list.
 Client-side only, against whatever REST API you point `API_BASE_URL` at. `AuthService` (`src/app/core/auth/auth.service.ts`) expects — verified live against the real [back-template-nest](https://github.com/obrenoalvim/back-template-nest), not just assumed:
 
 - `POST /auth/register` → `{ id, email }` — **no token, no auto-login.** This template's reference backend treats email verification as a separate step, so registering sends the user to `/login`, not `/dashboard`. There is no `name` field anywhere — the User model this was built against doesn't have one.
-- `POST /auth/login` → `{ accessToken }` **only** — no user object. `AuthService` decodes the JWT's payload client-side (`sub`/`email`) to populate `currentUser`; this is for display only, not a trust boundary — real authorization is still enforced server-side on every API call via the token itself.
+- `POST /auth/login` → `{ accessToken }` **only** — no user object. `AuthService` decodes the JWT's payload client-side (`sub`/`email`/`role`) to populate `currentUser`; this is for display only, not a trust boundary — real authorization is still enforced server-side on every API call via the token itself.
 - `POST /auth/forgot-password`, `POST /auth/reset-password`
 - `PATCH /account/password` (change password), `DELETE /account` (requires the **current password** in the body — collected via a form field on the Account page, since `ConfirmDialog` only returns yes/no, not text input)
 
-Pages: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/account`. `src/app/core/auth/auth.guard.ts` is the **one** guard protecting `/dashboard`, `/account`, `/notes` — applied once on a parent route, not per page. Toast feedback on every auth action goes through `ToastService`.
+Pages: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/account`. `src/app/core/auth/auth.guard.ts` is the **one** guard protecting `/dashboard`, `/account`, `/notes`, `/admin` — applied once on a parent route, not per page. Toast feedback on every auth action goes through `ToastService`.
 
 If you point this at a backend with a different contract (a `name` field, a combined login response, etc.), the one file to change is `auth.service.ts` — nothing else references the backend's exact shapes directly.
+
+## Roles
+
+`currentUser().role` (`'user'` | `'admin'`) comes straight from the JWT — never trust a `role` you send in a request. `/admin` (`src/app/features/admin`) is the reference for an admin-only page: `admin.guard.ts` checks the role client-side and redirects to `/dashboard` otherwise. On SSR it fails closed (no way to read the client-side JWT payload server-side, same limitation `auth.guard.ts` documents for its own check) — the client re-runs the guard immediately after hydration with the real answer. This is UX only; the actual gate is `back-template-nest`'s `RolesGuard` rejecting the request. Promote a user via the Nest side (flip the `role` column, then log in again to get a token with the new claim).
 
 ## i18n
 

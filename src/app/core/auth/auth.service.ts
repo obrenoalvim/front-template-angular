@@ -7,6 +7,7 @@ import { AuthStorage } from './auth-storage';
 export interface User {
   id: string;
   email: string;
+  role: 'user' | 'admin';
 }
 
 // back-template-nest's real contract (verified against src/auth/auth.service.ts
@@ -27,6 +28,7 @@ interface LoginResponse {
 interface JwtPayload {
   sub: string;
   email: string;
+  role: 'user' | 'admin';
 }
 
 function decodeJwtPayload(token: string): JwtPayload {
@@ -47,7 +49,7 @@ export class AuthService {
     return this.api.post<LoginResponse>('/auth/login', { email, password }).pipe(
       map((res) => {
         const payload = decodeJwtPayload(res.accessToken);
-        const user: User = { id: payload.sub, email: payload.email };
+        const user: User = { id: payload.sub, email: payload.email, role: payload.role };
         this.storage.setSession(res.accessToken, user);
         this.currentUser.set(user);
         return user;

@@ -6,6 +6,7 @@
     "dashboard": "Dashboard",
     "account": "Account",
     "notes": "Notes",
+    "admin": "Admin",
     "logout": "Log out"
   },
   "home": {
@@ -66,6 +67,11 @@
       "cancelAction": "Cancel",
       "success": "Account deleted."
     }
+  },
+  "admin": {
+    "title": "Admin",
+    "email": "Email",
+    "role": "Role"
   },
   "notes": {
     "title": "Notes",
