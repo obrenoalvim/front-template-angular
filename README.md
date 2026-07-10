@@ -1,3 +1,5 @@
+English | [Português](README.pt.md)
+
 # front-template-angular
 
 Clone-and-go base template for new frontend projects: Angular (standalone components, Signals, zoneless), SSR, Tailwind CSS v4, a copy-in UI kit, i18n, dark mode, client-side auth against a REST API, and Docker — all pre-wired and tested end to end, including a real, live-verified integration against [back-template-nest](https://github.com/obrenoalvim/back-template-nest). Clone it, point `API_BASE_URL` at your backend, start building your first feature instead of your fifth auth integration.
